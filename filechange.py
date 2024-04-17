@@ -283,10 +283,10 @@ class FileChange:
                 dest_file = urllib.parse.quote(dest_file, safe='')
                 if str(cloud_type) == "cd2":
                     # 将路径的开头盘符"/mnt/user/downloads"替换为"http://localhost:19798/static/http/localhost:19798/False/"
-                    dest_file = f"http://{cloud_url}/static/http/{cloud_url}/False/{dest_file}"
+                    dest_file = f"{cloud_url}/static/http/{cloud_url}/False/{dest_file}"
                     logger.info(f"替换后cd2路径:::{dest_file}")
                 elif str(cloud_type) == "alist":
-                    dest_file = f"http://{cloud_url}/d/{dest_file}"
+                    dest_file = f"{cloud_url}/d/{dest_file}"
                     logger.info(f"替换后alist路径:::{dest_file}")
                 else:
                     logger.error(f"云盘类型 {cloud_type} 错误")
