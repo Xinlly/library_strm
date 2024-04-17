@@ -277,8 +277,10 @@ class FileChange:
             # 云盘模式
             if cloud_type:
                 # 替换路径中的\为/
-                dest_file = source_file.replace("\\", "/")
-                dest_file = dest_file.replace(cloud_path, "")
+                dest_file = dest_file.replace(dest_dir, cloud_path)
+                dest_file = dest_file.replace("\\", "/")
+                # dest_file = source_file.replace("\\", "/")
+                # dest_file = dest_file.replace(cloud_path, "")
                 # 对盘符之后的所有内容进行url转码
                 dest_file = urllib.parse.quote(dest_file, safe='')
                 if str(cloud_type) == "cd2":
