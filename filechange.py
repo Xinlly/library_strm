@@ -11,13 +11,27 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
-logging.basicConfig(filename="/log/filechange.log",
-                    format='%(asctime)s - %(name)s - %(levelname)s -%(module)s:  %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S ',
-                    level=logging.INFO)
-logger = logging.getLogger()
+logging.basicConfig(
+    filename="/log/filechange.log",
+    format="%(asctime)s - %(name)s - %(levelname)s -%(module)s:  %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S ",
+    level=logging.INFO,
+)
+logFormat = logging.Formatter(
+    fmt="%(asctime)s - %(name)s - %(levelname)s -%(module)s:  %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S ",
+)
+fileHandler = logging.handlers.RotatingFileHandler(
+    filename="/log/test.log", maxBytes=1024 * 1024, backupCount=5, encoding="utf-8"
+)
+fileHandler.setLevel(logging.INFO)
+fileHandler.setFormatter(logFormat)
+
 KZT = logging.StreamHandler()
 KZT.setLevel(logging.DEBUG)
+
+logger = logging.getLogger()
+logger.addHandler(fileHandler)
 logger.addHandler(KZT)
 
 
@@ -37,7 +51,9 @@ class FileMonitorHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         logger.info(f"目录监控created事件路径::: {event.src_path}")
-        self.file_change.event_handler(event=event, source_dir=self._watch_path, event_path=event.src_path)
+        self.file_change.event_handler(
+            event=event, source_dir=self._watch_path, event_path=event.src_path
+        )
 
     # def on_deleted(self, event):
     #     logger.info(f"目录监控deleted事件路径 src_path::: {event.src_path}")
@@ -66,7 +82,7 @@ class FileChange:
         """
 
         filepath = os.path.join("/mnt", "config.yaml")
-        with open(filepath, 'r') as f:  # 用with读取文件更好
+        with open(filepath, "r") as f:  # 用with读取文件更好
             configs = yaml.load(f, Loader=yaml.FullLoader)  # 按字典格式读取并返回
 
         self.monitor_confs = configs["sync"]["monitor_confs"]
@@ -78,13 +94,27 @@ class FileChange:
             if not isinstance(monitor_conf, dict):
                 monitor_conf = json.loads(monitor_conf)
             self._dirconf[monitor_conf.get("source_dir")] = monitor_conf.get("dest_dir")
-            self._modeconf[monitor_conf.get("source_dir")] = monitor_conf.get("monitoring_mode")
-            self._libraryconf[monitor_conf.get("source_dir")] = monitor_conf.get("library_dir")
-            self._cloudtypeconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_type")
-            self._cloudpathconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_path")
-            self._cloudurlconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_url")
-            self._imgconf[monitor_conf.get("source_dir")] = monitor_conf.get("copy_img", True)
-            self._strmconf[monitor_conf.get("source_dir")] = monitor_conf.get("create_strm", True)
+            self._modeconf[monitor_conf.get("source_dir")] = monitor_conf.get(
+                "monitoring_mode"
+            )
+            self._libraryconf[monitor_conf.get("source_dir")] = monitor_conf.get(
+                "library_dir"
+            )
+            self._cloudtypeconf[monitor_conf.get("source_dir")] = monitor_conf.get(
+                "cloud_type"
+            )
+            self._cloudpathconf[monitor_conf.get("source_dir")] = monitor_conf.get(
+                "cloud_path"
+            )
+            self._cloudurlconf[monitor_conf.get("source_dir")] = monitor_conf.get(
+                "cloud_url"
+            )
+            self._imgconf[monitor_conf.get("source_dir")] = monitor_conf.get(
+                "copy_img", True
+            )
+            self._strmconf[monitor_conf.get("source_dir")] = monitor_conf.get(
+                "create_strm", True
+            )
 
     def start(self):
         """
@@ -103,9 +133,11 @@ class FileChange:
             else:
                 # 内部处理系统操作类型选择最优解
                 observer = Observer(timeout=10)
-            observer.schedule(event_handler=FileMonitorHandler(str(source_dir), self),
-                              path=str(source_dir),
-                              recursive=True)
+            observer.schedule(
+                event_handler=FileMonitorHandler(str(source_dir), self),
+                path=str(source_dir),
+                recursive=True,
+            )
             logger.info(f"开始监控文件夹 {str(source_dir)} 转移方式 {str(monitoring_mode)}")
             observer.daemon = True
             observer.start()
@@ -118,16 +150,17 @@ class FileChange:
         :param event_path:
         """
         # 回收站及隐藏的文件不处理
-        if (event_path.find("/@Recycle") != -1
-                or event_path.find("/#recycle") != -1
-                or event_path.find("/.") != -1
-                or event_path.find("/@eaDir") != -1):
+        if (
+            event_path.find("/@Recycle") != -1
+            or event_path.find("/#recycle") != -1
+            or event_path.find("/.") != -1
+            or event_path.find("/@eaDir") != -1
+        ):
             logger.info(f"{event_path} 是回收站或隐藏的文件，跳过处理")
             return
 
         # 原盘文件夹不处理
-        if (event_path.find("/BDMV") != -1
-                or event_path.find("/CERTIFICATE") != -1):
+        if event_path.find("/BDMV") != -1 or event_path.find("/CERTIFICATE") != -1:
             logger.info(f"{event_path} 是原盘文件夹，跳过处理")
             return
         logger.info(f"event_type::: {event.event_type}")
@@ -173,11 +206,31 @@ class FileChange:
 
                 # 视频文件创建.strm文件
                 video_formats = (
-                    '.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.iso', '.mpg')
+                    ".mp4",
+                    ".avi",
+                    ".rmvb",
+                    ".wmv",
+                    ".mov",
+                    ".mkv",
+                    ".flv",
+                    ".ts",
+                    ".webm",
+                    ".iso",
+                    ".mpg",
+                )
                 # 图片文件识别
-                img_formats = ('.jpg', '.png', '.jpeg', '.bmp', '.gif', '.webp')
+                img_formats = (".jpg", ".png", ".jpeg", ".bmp", ".gif", ".webp")
                 # 其他文件识别
-                nfo_formats = ('.nfo', '.xml', '.txt', '.srt', '.ass', '.sub', '.smi', '.ssa')
+                nfo_formats = (
+                    ".nfo",
+                    ".xml",
+                    ".txt",
+                    ".srt",
+                    ".ass",
+                    ".sub",
+                    ".smi",
+                    ".ssa",
+                )
                 if event_path.lower().endswith(video_formats):
                     if not strm_conf:
                         print(f"视频strm处理未开，复制视频文件到: {dest_file} ")
@@ -188,13 +241,15 @@ class FileChange:
                         logger.info(f"复制视频文件 {event_path} 到 {dest_file}")
                     else:
                         # 创建.strm文件
-                        self.__create_strm_file(dest_file=dest_file,
-                                                dest_dir=dest_dir,
-                                                library_dir=library_dir,
-                                                source_file=event_path,
-                                                cloud_type=cloud_type,
-                                                cloud_path=cloud_path,
-                                                cloud_url=cloud_url)
+                        self.__create_strm_file(
+                            dest_file=dest_file,
+                            dest_dir=dest_dir,
+                            library_dir=library_dir,
+                            source_file=event_path,
+                            cloud_type=cloud_type,
+                            cloud_path=cloud_path,
+                            cloud_url=cloud_url,
+                        )
                 elif event_path.lower().endswith(img_formats):
                     if not img_conf:
                         logger.info(f"图片处理未开，跳过处理: {event_path} ")
@@ -239,10 +294,10 @@ class FileChange:
     def __delete_empty_parent_directory(file_path):
         parent_dir = Path(file_path).parent
         if (
-                parent_dir != Path("/")
-                and parent_dir.is_dir()
-                and not any(parent_dir.iterdir())
-                and parent_dir.exists()
+            parent_dir != Path("/")
+            and parent_dir.is_dir()
+            and not any(parent_dir.iterdir())
+            and parent_dir.exists()
         ):
             try:
                 parent_dir.rmdir()
@@ -251,9 +306,15 @@ class FileChange:
                 logger.error(f"删除空父目录失败: {e}")
 
     @staticmethod
-    def __create_strm_file(dest_file: str, dest_dir: str, source_file: str, library_dir: str = None,
-                           cloud_type: str = None,
-                           cloud_path: str = None, cloud_url: str = None):
+    def __create_strm_file(
+        dest_file: str,
+        dest_dir: str,
+        source_file: str,
+        library_dir: str = None,
+        cloud_type: str = None,
+        cloud_path: str = None,
+        cloud_url: str = None,
+    ):
         """
         生成strm文件
         :param library_dir:
@@ -271,7 +332,9 @@ class FileChange:
                 os.makedirs(str(dest_path))
 
             # 构造.strm文件路径
-            strm_path = os.path.join(dest_path, f"{os.path.splitext(video_name)[0]}.strm")
+            strm_path = os.path.join(
+                dest_path, f"{os.path.splitext(video_name)[0]}.strm"
+            )
             logger.info(f"替换前本地路径:::{dest_file}")
 
             # 云盘模式
@@ -286,7 +349,7 @@ class FileChange:
                 # dest_file = source_file.replace("\\", "/")
                 # dest_file = dest_file.replace(cloud_path, "")
                 # 对盘符之后的所有内容进行url转码
-                dest_file = urllib.parse.quote(dest_file, safe='')
+                dest_file = urllib.parse.quote(dest_file, safe="")
                 if str(cloud_type) == "cd2":
                     # 将路径的开头盘符"/mnt/user/downloads"替换为"http://localhost:19798/static/http/localhost:19798/False/"
                     dest_file = f"{cloud_url}/static/http/{cloud_url}/False/{dest_file}"
@@ -303,7 +366,7 @@ class FileChange:
                 logger.info(f"替换后emby容器内路径:::{dest_file}")
 
             # 写入.strm文件
-            with open(strm_path, 'w') as f:
+            with open(strm_path, "w") as f:
                 f.write(dest_file)
 
             logger.info(f"创建strm文件 {strm_path}")
