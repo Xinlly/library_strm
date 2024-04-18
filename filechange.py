@@ -11,18 +11,18 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
-logging.basicConfig(
-    filename="/log/filechange.log",
-    format="%(asctime)s - %(name)s - %(levelname)s -%(module)s:  %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S ",
-    level=logging.INFO,
-)
+# logging.basicConfig(
+#     filename="/log/filechange.log",
+#     format="%(asctime)s - %(name)s - %(levelname)s -%(module)s:  %(message)s",
+#     datefmt="%Y-%m-%d %H:%M:%S ",
+#     level=logging.INFO,
+# )
 logFormat = logging.Formatter(
     fmt="%(asctime)s - %(name)s - %(levelname)s -%(module)s:  %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S ",
 )
 fileHandler = logging.handlers.RotatingFileHandler(
-    filename="/log/test.log", maxBytes=1024 * 1024, backupCount=5, encoding="utf-8"
+    filename="/log/filechange.log", maxBytes=1024 * 1024, backupCount=5, encoding="utf-8"
 )
 fileHandler.setLevel(logging.INFO)
 fileHandler.setFormatter(logFormat)
@@ -31,6 +31,7 @@ KZT = logging.StreamHandler()
 KZT.setLevel(logging.DEBUG)
 
 logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 logger.addHandler(fileHandler)
 logger.addHandler(KZT)
 

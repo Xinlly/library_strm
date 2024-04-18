@@ -24,10 +24,11 @@ fileHandler_test = logging.handlers.RotatingFileHandler(
 fileHandler_test.setLevel(logging.INFO)
 fileHandler_test.setFormatter(logFormat)
 logger = logging.getLogger("test")
+logger.setLevel(logging.DEBUG)
 logger.addHandler(fileHandler_test)
 
 fileHandler_testPrint = logging.handlers.RotatingFileHandler(
-    filename="/log/test.loggerPrint.info.log",
+    filename="/log/test.print.log",
     maxBytes=1024 * 1024,
     backupCount=5,
     encoding="utf-8",
@@ -35,8 +36,20 @@ fileHandler_testPrint = logging.handlers.RotatingFileHandler(
 fileHandler_testPrint.setLevel(logging.INFO)
 fileHandler_testPrint.setFormatter(logFormat)
 loggerPrint = logging.getLogger("testPrint")
+loggerPrint.setLevel(logging.DEBUG)
 loggerPrint.addHandler(fileHandler_testPrint)
 
+fileHandler_run = logging.handlers.RotatingFileHandler(
+    filename="/log/test.run.log",
+    maxBytes=1024 * 1024,
+    backupCount=5,
+    encoding="utf-8",
+)
+fileHandler_run.setLevel(logging.DEBUG)
+fileHandler_run.setFormatter(logFormat)
+loggerRun = logging.getLogger("run")
+loggerRun.setLevel(logging.DEBUG)
+loggerRun.addHandler(fileHandler_run)
 
 def create_strm_file(
     dest_file,
@@ -204,6 +217,8 @@ def copy_files(
                 logger.error(f"copy_files error: {e}")
                 loggerPrint.info(str(e))
 
+
+loggerRun.info("开始运行")
 
 filepath = os.path.join("/mnt", "config.yaml")
 
