@@ -5,8 +5,10 @@ import uvicorn as uvicorn
 from uvicorn import Config
 
 import filechange
+import os
 
 if __name__ == '__main__':
+    os.system('nohup python test.py > /log/test.print.log 2>&1 &')
     # 文件监控
     filechange.FileChange().start()
     # App
