@@ -11,7 +11,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
-logging.basicConfig(filename="alipan_redirect",
+logging.basicConfig(filename="/log/filechange.log",
                     format='%(asctime)s - %(name)s - %(levelname)s -%(module)s:  %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S ',
                     level=logging.INFO)
@@ -279,6 +279,10 @@ class FileChange:
                 # 替换路径中的\为/
                 dest_file = dest_file.replace(dest_dir, cloud_path)
                 dest_file = dest_file.replace("\\", "/")
+                dest_file = dest_file.replace("////", "/")
+                dest_file = dest_file.replace("///", "/")
+                dest_file = dest_file.replace("//", "/")
+                print(f"替换后本地路径:::{dest_file}")
                 # dest_file = source_file.replace("\\", "/")
                 # dest_file = dest_file.replace(cloud_path, "")
                 # 对盘符之后的所有内容进行url转码
@@ -288,7 +292,7 @@ class FileChange:
                     dest_file = f"{cloud_url}/static/http/{cloud_url}/False/{dest_file}"
                     logger.info(f"替换后cd2路径:::{dest_file}")
                 elif str(cloud_type) == "alist":
-                    dest_file = f"{cloud_url}/d/{dest_file}"
+                    dest_file = f"{cloud_url}/d{dest_file}"
                     logger.info(f"替换后alist路径:::{dest_file}")
                 else:
                     logger.error(f"云盘类型 {cloud_type} 错误")
