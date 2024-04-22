@@ -10,4 +10,7 @@ services:
       - /home/root/Documents/emby/embyLibrary:/data
       - ./log:/log
       - ./config.yaml:/mnt/config.yaml
+      - ./alipan_strm/test.py:/alipan_strm/test.py
+      - ./alipan_strm/filechange.py:/alipan_strm/filechange.py
+      - ./alipan_strm/main.py:/alipan_strm/main.py
     restart: unless-stopped
