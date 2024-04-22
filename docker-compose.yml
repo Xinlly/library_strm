@@ -2,7 +2,6 @@ version: '3.8'
 services:
   library_strm:
     container_name: library_strm
-    # command: python /alipan_strm/test.py
     image: thsrite/library-strm:latest
     ports:
       - 33455:33455
